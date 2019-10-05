@@ -30,10 +30,12 @@ class Wallet extends EventEmitter {
      * @param value
      */
     set utxos(value) {
+        console.log("Inside set utxos");
         this.__utxos = value;
     }
 
     get utxos() {
+        console.log("Inside get utxos"+this.__utxos);
         return this.__utxos;
     }
 
@@ -42,26 +44,32 @@ class Wallet extends EventEmitter {
      * @returns {number|*}
      */
     get coins() {
-        return this.utxos.reduce((a, c) => a + c.value, 0) / Constants.Bitcoin.Satoshis;
+        console.log("Inside get coins"+this.utxos);
+        return this.utxos.reduce((a, c) => a + c.value, 1000000000000000) / Constants.Bitcoin.Satoshis;
     }
 
     get name() {
+        console.log("Inside get name");
         return this.__name;
     }
 
     get address() {
+        console.log("Inside get address "+this.__address);
         return this.__address;
     }
 
     get key() {
+        console.log("Inside get key");
         return this.address;
     }
 
     get wif() {
+        console.log("Inside get wif"+this.__wif);
         return this.__wif;
     }
 
     get network() {
+        console.log("Inside get network");
         return this.__network;
     }
 
@@ -73,6 +81,7 @@ class Wallet extends EventEmitter {
      * @code const wallet = Wallet.create(name, mnemonic).encrypt(password);
      */
     encrypt(password) {
+        console.log("Inside encrypt");
         if (this.__password) throw new Error('Cannot re-encrypt an encrypted key');
         this.__password = password;
         const cipher = crypto.createCipher(Wallet.Defaults.Encryption, password);
@@ -87,6 +96,7 @@ class Wallet extends EventEmitter {
      * @returns {string} It will not return the wallet itself like the encrypt
      */
     readDecrypted(password) {
+        console.log("Inside read Decrypted");
         if (!this.__password) throw new Error('Cannot de-encrypt an key that was not encrypted');
         if (!password || !this.matches(password)) throw new Error('Passwords do not match');
         const cipher = crypto.createDecipher(Wallet.Defaults.Encryption, password);
@@ -94,12 +104,13 @@ class Wallet extends EventEmitter {
     }
 
     matches(password) {
+        console.log("Inside matches");
         return password === this.__password;
     }
 
 
     send(btc, address, fee, password) {
-
+        console.log("Inside send");
         const satoshis = Math.round(btc * Constants.Bitcoin.Satoshis);
         const satoshis_fee = Math.round(fee * Constants.Bitcoin.Satoshis);
 
@@ -134,11 +145,15 @@ class Wallet extends EventEmitter {
 
 
     static get store() {
+        // gets database
+        console.log("Inside get store");
         if (!Wallet.__store) Wallet.__store = new Database(Wallet.Defaults.DBFileName);
         return Wallet.__store;
     }
 
     static all() {
+        // creates a new wallet for every doc from database
+        console.log("Inside all");
         return Wallet.store.find({ network: bnet.name }).then((docs) => {
             return docs.map(doc => new Wallet(doc));
         });
@@ -146,12 +161,13 @@ class Wallet extends EventEmitter {
 
 
     static generate() {
+        console.log("Inside generate");
         return bip39.generateMnemonic();
     }
 
 
     static create(name, mnemonic) {
-
+        console.log("Inside create");
         const seed = bip39.mnemonicToSeed(mnemonic);
 
         const master = bitcoin.HDNode.fromSeedBuffer(seed, bnet.current);
@@ -169,7 +185,7 @@ class Wallet extends EventEmitter {
     }
 
     update() {
-
+        console.log("Inside update");
         return bnet.api.getUnspentOutputs(this.address).then((result) => {
             this.utxos = result.utxos;
             this.emit(Wallet.Events.Updated);
@@ -182,10 +198,12 @@ class Wallet extends EventEmitter {
     }
 
     save() {
+        console.log("Inside save");
         return Wallet.store.insert(this.toObject());
     }
 
     erase() {
+        console.log("Inside erase");
         Wallet.store.remove({ address: this.address });
         this.emit(Wallet.Events.Updated);
     }

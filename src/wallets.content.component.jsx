@@ -243,14 +243,10 @@ class WalletsContent extends React.Component {
                 <div style={{ marginBottom: '12px' }}>
                     <Button
                       type="primary"
-                      icon="down-square-o"
-                      onClick={() => this.setState({ modalOpenCreate: true, })}>Import
-                    </Button>
-                    <Button
-                      type="primary"
-                      icon="plus-circle-o"
-                      style={{ marginLeft: '8px' }}
-                      onClick={() => this.setState({ modalOpenCreate: true, })}>Create
+                      icon="credit-card"
+                      disabled={this.fees > 0} 
+                      onClick={e => this.setState({modalOpenSend: true})}
+                    >Make Transaction
                     </Button>
                     <Button type="primary"
                             shape="circle"
